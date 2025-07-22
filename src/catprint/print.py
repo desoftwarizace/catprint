@@ -2,6 +2,7 @@
 
 # based on: https://github.com/amber-sixel/gb01print/blob/main/gb01print.py
 
+import asyncio
 import enum
 import itertools
 import sys
@@ -68,7 +69,7 @@ async def print_image(img: PIL.Image.Image) -> None:
                     img.convert("RGB")
                     .convert("1")
                     .point(lambda p: 255 - p)
-                    .transpose(PIL.Image.Transpose.FLIP_TOP_BOTTOM)
+                    .transpose(PIL.Image.Transpose.FLIP_LEFT_RIGHT)
                     .tobytes(),
                     PRINTER_WIDTH // 8,
                 )
@@ -89,11 +90,4 @@ async def print_image(img: PIL.Image.Image) -> None:
             await client.write_gatt_char(
                 "0000AE01-0000-1000-8000-00805F9B34FB", bytearray(chunk)
             )
-
-
-__all__ = ["print_image"]
-
-
-if __name__ == "__main__":
-    import asyncio
-    asyncio.run(print_image(PIL.Image.open(sys.argv[1])))
+            await asyncio.sleep(0.05)
