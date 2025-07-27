@@ -53,7 +53,7 @@ class Command(enum.Enum):
         )
 
 
-async def print_image(img: PIL.Image.Image) -> None:
+async def print(img: PIL.Image.Image) -> None:
     assert img.width == PRINTER_WIDTH, f"Image width must be {PRINTER_WIDTH} pixels"
 
     data = b"".join(
@@ -82,12 +82,12 @@ async def print_image(img: PIL.Image.Image) -> None:
     try:
         device = next((d for d in (await BleakScanner.discover()) if d.name == "MX06"))
     except StopIteration:
-        print("Printer not found. Make sure it is powered on and in range.")
+        __builtins__.print("Printer not found. Make sure it is powered on and in range.")
         sys.exit(1)
 
     async with BleakClient(device) as client:
-        for chunk in itertools.batched(data, n=128):
+        for chunk in itertools.batched(data, n=64):
             await client.write_gatt_char(
                 "0000AE01-0000-1000-8000-00805F9B34FB", bytearray(chunk)
             )
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.025)
