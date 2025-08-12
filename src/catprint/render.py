@@ -8,6 +8,16 @@ from catprint.printer import PRINTER_WIDTH
 import importlib
 
 
+def image(image: PIL.Image.Image) -> PIL.Image.Image:
+    if image.mode != "1":
+        image = image.convert("1")
+    if image.width > PRINTER_WIDTH:
+        image = image.resize(
+            (PRINTER_WIDTH, int(image.height * PRINTER_WIDTH / image.width))
+        )
+    return image
+
+
 def text(text: str, *, font_size: int = 18, line_length: int = 44) -> PIL.Image.Image:
     font = PIL.ImageFont.truetype(
         str(
@@ -59,7 +69,7 @@ def text_banner(
     font = PIL.ImageFont.truetype(
         str(
             importlib.resources.files("catprint").joinpath(
-                "fonts/NotoSansMono_ExtraCondensed-Black.ttf"
+                "fonts/NotoSansMono_ExtraCondensed-Regular.ttf"
             )
         ),
         font_size,
@@ -68,18 +78,19 @@ def text_banner(
     banner_img = banner(text)
     img = PIL.Image.new("1", (banner_img.width, banner_img.height), color="white")
     draw = PIL.ImageDraw.Draw(img)
-    for y in range(int(banner_img.height / char_height)):
-        for x in range(int(banner_img.width / char_width)):
-            draw.text(
-                (x * char_width, y * char_height),
-                " "
-                if banner_img.getpixel(
-                    (int((x + 0.5) * char_width), int((y + 0.5) * char_height))
-                )
-                else "#",
-                fill="black",
-                font=font,
-            )
+    text_iter = itertools.cycle(c for c in text if c != " ")
+    rows = int(banner_img.height / char_height)
+    cols = int(banner_img.width / char_width)
+    for y in range(rows):
+        line_text = ""
+        for x in range(cols):
+            if banner_img.getpixel(
+                (int((x + 0.5) * char_width), int((y + 0.5) * char_height))
+            ):
+                line_text += " "
+            else:
+                line_text += next(text_iter)
+        draw.text((0, y * char_height), line_text, fill="black", font=font)
     return img
 
 

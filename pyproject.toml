@@ -11,6 +11,7 @@ dependencies = [
     "bleak>=1.0.1",
     "crc8>=0.2.1",
     "pillow>=11.3.0",
+    "streamlit>=1.48.0",
 ]
 
 [build-system]
