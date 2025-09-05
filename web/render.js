@@ -19,7 +19,7 @@ async function renderImage(file) {
 
                 ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
-                // Floyd-Steinberg dithering
+                // Atkinson dithering
                 const imageData = ctx.getImageData(0, 0, newWidth, newHeight);
                 const data = imageData.data;
                 const grayscale = new Uint8Array(newWidth * newHeight);
@@ -34,19 +34,25 @@ async function renderImage(file) {
                         const oldPixel = grayscale[index];
                         const newPixel = oldPixel > 128 ? 255 : 0;
                         grayscale[index] = newPixel;
-                        const error = oldPixel - newPixel;
+                        const error = (oldPixel - newPixel) / 8;
 
                         if (x + 1 < newWidth) {
-                            grayscale[index + 1] += error * 7 / 16;
+                            grayscale[index + 1] += error;
+                        }
+                        if (x + 2 < newWidth) {
+                            grayscale[index + 2] += error;
                         }
                         if (x - 1 >= 0 && y + 1 < newHeight) {
-                            grayscale[index - 1 + newWidth] += error * 3 / 16;
+                            grayscale[index - 1 + newWidth] += error;
                         }
                         if (y + 1 < newHeight) {
-                            grayscale[index + newWidth] += error * 5 / 16;
+                            grayscale[index + newWidth] += error;
                         }
                         if (x + 1 < newWidth && y + 1 < newHeight) {
-                            grayscale[index + 1 + newWidth] += error * 1 / 16;
+                            grayscale[index + 1 + newWidth] += error;
+                        }
+                        if (y + 2 < newHeight) {
+                            grayscale[index + newWidth * 2] += error;
                         }
                     }
                 }
