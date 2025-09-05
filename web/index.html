@@ -12,13 +12,15 @@
         </div>
 
         <div id="preview-container">
+            <div id="preview-text">Drop image here or click to select</div>
             <canvas id="preview"></canvas>
         </div>
 
-        <label for="image-input" class="file-label">Select Image</label>
-        <input type="file" id="image-input" accept="image/*">
+        <input type="file" id="image-input" accept="image/*" style="display: none;">
         
-        <button id="print-button">Print</button>
+        <div class="button-container">
+            <button id="print-button">Print</button>
+        </div>
     </div>
 
     <script src="render.js"></script>
