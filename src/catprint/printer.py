@@ -87,6 +87,7 @@ async def print(img: PIL.Image.Image) -> None:
 
     async with BleakClient(device) as client:
         for chunk in itertools.batched(data, n=64):
+            # service UUID: 0000ae30-0000-1000-8000-00805f9b34fb
             await client.write_gatt_char(
                 "0000AE01-0000-1000-8000-00805F9B34FB", bytearray(chunk)
             )
