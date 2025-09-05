@@ -136,9 +136,9 @@ async function printImage(imageData) {
     }
 
     commands = new Uint8Array([
-        ...commands,
-        ...formatCommand(Command.CONTROL_LATTICE, Lattice.FINISH),
-        ...formatCommand(Command.FEED_PAPER, 50),
+      ...commands,
+      ...formatCommand(Command.CONTROL_LATTICE, Lattice.FINISH),
+      ...formatCommand(Command.FEED_PAPER, 100),
     ]);
 
 
