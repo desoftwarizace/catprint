@@ -23,6 +23,8 @@ const PrintSpeed = {
     BLANK: new Uint8Array([0x19]),
 };
 
+let device = null;
+
 function formatCommand(command, data) {
     if (typeof data === 'number') {
         const buffer = new ArrayBuffer(2);
@@ -74,12 +76,18 @@ function crc8(data) {
 
 
 async function printImage(imageData) {
-    const device = await navigator.bluetooth.requestDevice({
-        filters: [{ name: 'MX06' }],
-        optionalServices: ['0000ae30-0000-1000-8000-00805f9b34fb']
-    });
+    if (!device) {
+        device = await navigator.bluetooth.requestDevice({
+            filters: [{ name: 'MX06' }],
+            optionalServices: ['0000ae30-0000-1000-8000-00805f9b34fb']
+        });
+    }
 
-    const server = await device.gatt.connect();
+    if (!device.gatt.connected) {
+        await device.gatt.connect();
+    }
+
+    const server = device.gatt;
     const service = await server.getPrimaryService('0000ae30-0000-1000-8000-00805f9b34fb');
     const characteristic = await service.getCharacteristic('0000ae01-0000-1000-8000-00805f9b34fb');
 
