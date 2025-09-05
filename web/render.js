@@ -17,7 +17,7 @@ async function renderImage(file, previewCanvas) {
                 // Atkinson dithering
                 const imageData = ctx.getImageData(0, 0, newWidth, newHeight);
                 const data = imageData.data;
-                const grayscale = new Uint8Array(newWidth * newHeight);
+                const grayscale = new Float32Array(newWidth * newHeight);
 
                 for (let i = 0; i < data.length; i += 4) {
                     grayscale[i / 4] = (data[i] + data[i + 1] + data[i + 2]) / 3;
