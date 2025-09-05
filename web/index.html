@@ -1,27 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Web Catprint</title>
+    <title>CATPRINT ≽^•⩊•^≼</title>
     <link rel="stylesheet" href="style.css">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
 </head>
 <body>
-    <div class="receipt">
-        <div class="receipt-header">
-            CATPRINT
-        </div>
+    <div class="header">
+        <h1>CATPRINT</h1>
+        <div class="mascot">≽^•⩊•^≼</div>
+    </div>
 
+    <div class="receipt">
         <div id="preview-container">
-            <div id="preview-text">Drop image here or click to select</div>
+            <div id="preview-text">Click to select image<br>(or drop here)</div>
             <canvas id="preview"></canvas>
         </div>
-
-        <input type="file" id="image-input" accept="image/*" style="display: none;">
-        
-        <div class="button-container">
-            <button id="print-button">Print</button>
-        </div>
     </div>
+
+    <input type="file" id="image-input" accept="image/*" style="display: none;">
+    <button id="print-button">PRINT!</button>
 
     <script src="render.js"></script>
     <script src="printer.js"></script>
