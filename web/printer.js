@@ -25,28 +25,6 @@ const PrintSpeed = {
 
 let device = null;
 
-function formatCommand(command, data) {
-    if (typeof data === 'number') {
-        const buffer = new ArrayBuffer(2);
-        new DataView(buffer).setUint16(0, data, true);
-        data = new Uint8Array(buffer);
-    }
-
-    const crc = crc8(data);
-    const payload = new Uint8Array([
-        command[0],
-        0x00,
-        data.length,
-        0x00,
-        ...data,
-        crc,
-        0x00
-    ]);
-
-    const fullCommand = new Uint8Array([0x51, 0x78, ...payload]);
-    return fullCommand;
-}
-
 const crc8_table = [
     0x00, 0x07, 0x0e, 0x09, 0x1c, 0x1b, 0x12, 0x15, 0x38, 0x3f, 0x36, 0x31, 0x24, 0x23, 0x2a, 0x2d,
     0x70, 0x77, 0x7e, 0x79, 0x6c, 0x6b, 0x62, 0x65, 0x48, 0x4f, 0x46, 0x41, 0x54, 0x53, 0x5a, 0x5d,
@@ -74,6 +52,44 @@ function crc8(data) {
     return crc & 0xFF;
 }
 
+function formatCommand(command, data) {
+    if (typeof data === 'number') {
+        const buffer = new ArrayBuffer(2);
+        new DataView(buffer).setUint16(0, data, true);
+        data = new Uint8Array(buffer);
+    }
+
+    const crc = crc8(data);
+    const payload = new Uint8Array([
+        command[0],
+        0x00,
+        data.length,
+        0x00,
+        ...data,
+        crc,
+        0x00
+    ]);
+
+    const fullCommand = new Uint8Array([0x51, 0x78, ...payload]);
+    return fullCommand;
+}
+
+function flipImageDataHorizontally(imageData) {
+    const { width, height, data } = imageData;
+    const flippedData = new Uint8ClampedArray(data.length);
+    for (let y = 0; y < height; y++) {
+        for (let x = 0; x < width; x++) {
+            const originalIndex = (y * width + x) * 4;
+            const flippedIndex = (y * width + (width - 1 - x)) * 4;
+            flippedData[flippedIndex] = data[originalIndex];
+            flippedData[flippedIndex + 1] = data[originalIndex + 1];
+            flippedData[flippedIndex + 2] = data[originalIndex + 2];
+            flippedData[flippedIndex + 3] = data[originalIndex + 3];
+        }
+    }
+    return new ImageData(flippedData, width, height);
+}
+
 
 async function printImage(imageData) {
     if (!device) {
@@ -91,12 +107,14 @@ async function printImage(imageData) {
     const service = await server.getPrimaryService('0000ae30-0000-1000-8000-00805f9b34fb');
     const characteristic = await service.getCharacteristic('0000ae01-0000-1000-8000-00805f9b34fb');
 
+    const flippedImageData = flipImageDataHorizontally(imageData);
+
     const imageBytes = [];
-    for (let y = 0; y < imageData.height; y++) {
+    for (let y = 0; y < flippedImageData.height; y++) {
         const line = new Uint8Array(PRINTER_WIDTH / 8);
-        for (let x = 0; x < PRINTER_WIDTH; x++) {
-            const index = (y * PRINTER_WIDTH + x) * 4;
-            const color = imageData.data[index] === 0 ? 1 : 0; // Inverted, 1 is black
+        for (let x = 0; x < flippedImageData.width; x++) {
+            const index = (y * flippedImageData.width + x) * 4;
+            const color = flippedImageData.data[index] === 0 ? 1 : 0; // Inverted, 1 is black
             if (color) {
                 line[Math.floor(x / 8)] |= (1 << (7 - (x % 8)));
             }

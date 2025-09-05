@@ -2,10 +2,24 @@
 <html>
 <head>
     <title>Web Catprint</title>
+    <link rel="stylesheet" href="style.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
 <body>
-    <input type="file" id="image-input" accept="image/*">
-    <button id="print-button">Print</button>
+    <div class="receipt">
+        <div class="receipt-header">
+            CATPRINT
+        </div>
+
+        <div id="preview-container">
+            <canvas id="preview"></canvas>
+        </div>
+
+        <label for="image-input" class="file-label">Select Image</label>
+        <input type="file" id="image-input" accept="image/*">
+        
+        <button id="print-button">Print</button>
+    </div>
 
     <script src="render.js"></script>
     <script src="printer.js"></script>

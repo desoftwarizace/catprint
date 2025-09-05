@@ -1,21 +1,16 @@
-async function renderImage(file) {
+async function renderImage(file, previewCanvas) {
     return new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.onload = (event) => {
             const img = new Image();
             img.onload = () => {
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d', { willReadFrequently: true });
-
                 const newWidth = 384;
                 const newHeight = Math.floor(img.height * (newWidth / img.width));
 
-                canvas.width = newWidth;
-                canvas.height = newHeight;
+                previewCanvas.width = newWidth;
+                previewCanvas.height = newHeight;
 
-                // Flip horizontally
-                ctx.translate(newWidth, 0);
-                ctx.scale(-1, 1);
+                const ctx = previewCanvas.getContext('2d', { willReadFrequently: true });
 
                 ctx.drawImage(img, 0, 0, newWidth, newHeight);
 
@@ -65,7 +60,7 @@ async function renderImage(file) {
                 }
 
                 ctx.putImageData(imageData, 0, 0);
-                resolve(ctx.getImageData(0, 0, newWidth, newHeight));
+                resolve(imageData);
             };
             img.onerror = reject;
             img.src = event.target.result;
